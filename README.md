@@ -33,13 +33,17 @@ You can reach us at `mda@liverpool.ac.uk`.
 # Getting started
 First, download or clone this repository on your local machine.
 
-If you have Github ssh keys use:
-`git clone git@github.com:marcodeangelis/intervals.git`
-
 If you don't have Github ssh keys (you may have to enter your github password) use:
 `git clone  https://github.com/marcodeangelis/intervals.git`
 
-<!-- If you don't have a Github account, just click on the green button `code`, and hit Download. This will download the code in a zip folder. -->
+Otherwise:
+
+`git clone git@github.com:marcodeangelis/intervals.git`
+
+
+```
+If you don't have a Github account, just click on the code green button, and hit Download. This will zip and download the code in your designated downloads folder.
+```
 
 ## Dependencies
 
