@@ -8,9 +8,30 @@ MIT License
 """
 import numpy
 
-def multiply(s,o,l,h):
-    s_lo,s_hi,o_lo,o_hi=s.lo(),s.hi(),o.lo(),o.hi()
-    if s_lo.shape==o_lo.shape:
+def multiply(s,o):
+    s_lo,s_hi,o_lo,o_hi=s.lo,s.hi,o.lo,o.hi
+    if s.scalar & o.scalar:
+        if (s_lo >= 0) & (o_lo >= 0): # A+ B+
+            l,h = s_lo * o_lo, s_hi * o_hi
+        if (s_lo>=0) & ((o_lo<0) & (o_hi>0)): # A+ B0
+            l,h = s_hi * o_lo, s_hi * o_hi
+        if (s_lo>=0) & (o_hi<=0): # A+ B-
+            l,h = s_hi * o_lo, s_lo * o_hi
+        if ((s_lo<0) & (s_hi>0)) & (o_lo>=0): # A0 B+
+            l,h = s_lo * o_hi, s_hi * o_hi
+        if ((s_lo<0) & (s_hi>0)) & ((o_lo<0) & (o_hi>0)): # A0 B0
+            l=numpy.min((s_lo*o_hi, s_hi*o_lo,s_lo*o_lo,s_hi*o_hi),axis=0)
+            h=numpy.max((s_lo*o_lo, s_hi*o_hi,s_lo*o_hi,s_hi*o_lo),axis=0)
+        if ((s_lo<0) & (s_hi>0)) & (o_hi<=0): # A0 B-
+            l,h = s_hi * o_lo, s_lo * o_lo
+        if (s_hi<=0) & (o_lo>=0): # A- B+
+            l,h = s_lo * o_hi, s_hi * o_lo
+        if (s_hi<=0) & ((o_lo<0) & (o_hi>0)): # A- B0
+            l,h = s_lo * o_hi, s_lo * o_lo
+        if (s_hi<=0) & (o_hi<=0): # A- B-
+            l,h = s_hi * o_hi, s_lo * o_lo
+    elif s_lo.shape==o_lo.shape:
+        l,h = numpy.empty(s_lo.shape),numpy.empty(s_lo.shape)
         pp=(s_lo >= 0) & (o_lo >= 0) # A+ B+
         l[pp] = s_lo[pp] * o_lo[pp]
         h[pp] = s_hi[pp] * o_hi[pp]
@@ -38,7 +59,8 @@ def multiply(s,o,l,h):
         nn=(s_hi<=0) & (o_hi<=0) # A- B-
         l[nn] = s_hi[nn] * o_hi[nn]
         h[nn] = s_lo[nn] * o_lo[nn]
-    elif s.scalar():
+    elif s.scalar:
+        l,h = numpy.empty(o_lo.shape),numpy.empty(o_lo.shape)
         pp=(s_lo >= 0) & (o_lo >= 0) # A+ B+
         l[pp] = s_lo * o_lo[pp]
         h[pp] = s_hi * o_hi[pp]
@@ -66,7 +88,8 @@ def multiply(s,o,l,h):
         nn=(s_hi<=0) & (o_hi<=0) # A- B-
         l[nn] = s_hi * o_hi[nn]
         h[nn] = s_lo * o_lo[nn]
-    elif o.scalar():
+    elif o.scalar:
+        l,h = numpy.empty(s_lo.shape),numpy.empty(s_lo.shape)
         pp=(s_lo >= 0) & (o_lo >= 0) # A+ B+
         l[pp] = s_lo[pp] * o_lo
         h[pp] = s_hi[pp] * o_hi
@@ -97,11 +120,25 @@ def multiply(s,o,l,h):
     return l,h
 
 
-def divide(s,o,l,h):
-    s_lo,s_hi,o_lo,o_hi=s.lo(),s.hi(),o.lo(),o.hi()
+def divide(s,o):
+    s_lo,s_hi,o_lo,o_hi=s.lo,s.hi,o.lo,o.hi
     other_straddle_zero = numpy.any((o_lo.flatten()<=0) & (o_hi.flatten()>=0))
     if other_straddle_zero: raise ZeroDivisionError
-    if s_lo.shape==o_lo.shape:
+    if s.scalar & o.scalar:
+        if (s_lo >= 0) & (o_lo > 0): # A+ B+
+            l,h = s_lo / o_hi, s_hi / o_lo
+        if ((s_lo<0) & (s_hi>0)) & (o_lo>0): # A0 B+
+            l,h = s_lo / o_lo, s_hi / o_lo
+        if (s_hi<=0) & (o_lo>=0): # A- B+
+            l,h = s_lo / o_lo, s_hi / o_hi
+        if (s_lo>=0) & (o_hi<=0): # A+ B-
+            l,h = s_hi / o_hi, s_lo / o_lo
+        if ((s_lo<0) & (s_hi>0)) & (o_hi<=0): # A0 B-
+            l,h = s_hi / o_hi, s_lo / o_hi
+        if (s_hi<=0) & (o_hi<=0): # A- B-
+            l,h = s_hi / o_lo, s_lo / o_hi
+    elif s_lo.shape==o_lo.shape:
+        l,h = numpy.empty(s_lo.shape),numpy.empty(s_lo.shape)
         pp=(s_lo >= 0) & (o_lo > 0) # A+ B+
         l[pp] = s_lo[pp] / o_hi[pp]
         h[pp] = s_hi[pp] / o_lo[pp]
@@ -120,7 +157,8 @@ def divide(s,o,l,h):
         nn=(s_hi<=0) & (o_hi<=0) # A- B-
         l[nn] = s_hi[nn] / o_lo[nn]
         h[nn] = s_lo[nn] / o_hi[nn]
-    elif s.scalar():
+    elif s.scalar:
+        l,h = numpy.empty(o_lo.shape),numpy.empty(o_lo.shape)
         pp=(s_lo >= 0) & (o_lo > 0) # A+ B+
         l[pp] = s_lo / o_hi[pp]
         h[pp] = s_hi / o_lo[pp]
@@ -139,7 +177,8 @@ def divide(s,o,l,h):
         nn=(s_hi<=0) & (o_hi<=0) # A- B-
         l[nn] = s_hi / o_lo[nn]
         h[nn] = s_lo / o_hi[nn]
-    elif o.scalar():
+    elif o.scalar:
+        l,h = numpy.empty(s_lo.shape),numpy.empty(s_lo.shape)
         pp=(s_lo >= 0) & (o_lo > 0) # A+ B+
         l[pp] = s_lo[pp] / o_hi
         h[pp] = s_hi[pp] / o_lo

@@ -27,7 +27,7 @@ def lo(x: Interval) -> Union[float, ndarray]:
     If x is not of class Interval, input is returned.
 
     """
-    if is_Interval(x): return x.lo()
+    if is_Interval(x): return x.lo
     return x
 
 def hi(x: Interval) -> Union[float, ndarray]:
@@ -37,7 +37,7 @@ def hi(x: Interval) -> Union[float, ndarray]:
     If x is not of class Interval, input is returned.
     
     """
-    if is_Interval(x): return x.hi()
+    if is_Interval(x): return x.hi
     return x
 
 def width(x):
@@ -88,7 +88,7 @@ def straddle_zero(x: Interval) -> bool:
 
 
 # Binary methods
-
+# ...
 
 
 # Universal parser
@@ -128,3 +128,23 @@ def intervalise(x: Any,) -> Union[Interval,Any]:
         print('Array-like structure must have last dimension (or first) of size 2, for it to be coerced to Interval.')
         return Interval(lo=x_) 
     else: return Interval(lo=x_)
+
+
+def sizeit(x:Interval) -> Interval:
+    '''
+    Takes an unsized scalar interval and turns it in to a sized one.
+    '''
+    if is_Interval(x):
+        if x.scalar & x.unsized:
+            return Interval(lo=[x.lo], hi=[x.hi])
+    return x
+
+def unsizeit(x:Interval) -> Interval:
+    '''
+    Takes a sized scalar interval and turns it in to a unsized one.
+
+    '''
+    if is_Interval(x):
+        if x.scalar & x.unsized==False:
+            return Interval(lo=x.lo[0], hi=x.hi[0])
+    return x
