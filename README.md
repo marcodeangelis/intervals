@@ -49,7 +49,7 @@ There is only one mandatory dependency to use `intervals`. So the `requirements.
 numpy>=1.22
 ```
 
-However, we reccommend installing also `matplotlib` for plotting. 
+However, we recommend installing also `matplotlib` for plotting. 
 
 ### Virtual environment
 
@@ -69,13 +69,13 @@ $ source myenv/bin/activate
 
 # Intervals
 
-Let's see what this code can do with intervals.
+Let's see what this code in action.
 
 
 ## Importing the code
 ```python
 from intervals.number import Interval as I
-from intervals.methods import (lo,hi,mid,rad,width,straddle_zero,intervalise)
+from intervals.methods import (lo,hi,mid,rad,width,intervalise)
 from tests.interval_generator import pick_endpoints_at_random_uniform
 ```
 
@@ -295,9 +295,9 @@ x = intervalise(ds)
 print(x.shape)
 # (3,3)
 print(x)
-# [1. 2.] [1. 2.] [1. 2.]
-# [2. 3.] [2. 3.] [2. 3.]
-# [4. 5.] [4. 5.] [4. 5.]
+# [1. 2.] [-1.  2.] [0. 2.]
+# [2. 3.] [-2.  1.] [3. 4.]
+# [4. 5.] [3. 5.] [6. 8.]
 ```
 
 Any 2d-array with either first or second dimension of size two also qualifies as an interval. So the parser `intervalise` will turn them into an interval. 
