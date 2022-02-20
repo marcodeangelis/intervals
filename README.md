@@ -24,7 +24,7 @@ Disclaimer: This implmentation of interval arithmetic is rigorous in the sense o
 * Keep adding more operations and functions.
 * Add support for outward directed rounding, and comply with the IEEE standard on interval arithmetic.
 
-## Contacts
+## Contact
 You can reach us at `mda@liverpool.ac.uk`.
 
 ## References
