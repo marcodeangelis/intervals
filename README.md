@@ -110,7 +110,7 @@ print(x/y)
 # [-1.0,-0.33]
 ```
 
-We can check that these operations are correct with __enpoints analysis__. For example the addition is:
+We can check that these operations are correct with __endpoints analysis__. For example, the addition is:
 
 ```python
 xe = [lo(x),hi(x)]
@@ -194,7 +194,7 @@ Array-like intervals are intervals which  endpoints are array-like structures. W
 
 (4) array of shape (n,m,...) or __Nd array__
 
-All computations between array-like intervals are done element-wise, unless otherwise specified.
+All computations between array-like intervals are done elementwise, unless otherwise specified.
 
 Two interval vectors `x` and `y` can be defined as follows:
 
@@ -237,7 +237,7 @@ print(x/y)
 # [-5.0,-1.0]
 ```
 
-We can check that the operations are done element-wise by iterating over the intervals:
+We can check that the operations are done elementwise by iterating over the intervals:
 
 ```python
 for xi,yi in zip(x,y): print(xi-yi)
@@ -282,10 +282,10 @@ print(a/x)
 
 ## Universal interval parser
 
-The library provides a wrapper of the Numpy `asarray` parser to turn data structures in to array-like interval structures. The interval parser is called `intervalise`.
+The library provides a wrapper of the Numpy `asarray` parser to turn data structures into array-like interval structures. The interval parser is called `intervalise`.
 Any array-like structure with the last dimension of size two qualifies as an interval. 
 
-For example the data structure:
+For example, the data structure:
 
 ```python
 ds = [[[1,2], [2,3], [4,5]],
@@ -306,7 +306,7 @@ print(x)
 
 Any 2d-array with either first or second dimension of size two also qualifies as an interval. So the parser `intervalise` will turn them into an interval. 
 
-For example the data strcture:
+For example, the data structure:
 
 ```python
 ds = [[1,2],[2,3],[4,5],[5,6]]
@@ -346,7 +346,7 @@ print(x)
 
 In fact, the data structure `ds = [[1,2,4,5],[2,3,5,6]]`, could be seen as a list of left and right endpoints.
 
-In case of ambiguity the last dimension is prioritised over the first. So for example: 
+In case of ambiguity the last dimension is prioritised over the first. So, for example: 
 
 ```python
 ds = [[1,2],[5,6]]
@@ -363,3 +363,29 @@ print(x)
 # [5.0,6.0]
 ```
 
+## Speed tests
+
+Computing with intervals should take at most four times the computational effort required for computing with floats.  However, because `Interval` is a wrapper of the `ndarray`, there is some overhead due to casting and if-statements branching. 
+
+A simple speed test shows that multiplying two large `Interval` matrices takes about 15 times more computing time than multiplying two large `ndarray` matrices.
+
+```python
+shape=(10_000,10_000)
+x,y = create_two_large_interval_matrices(shape)
+t0 = time.time()
+z=x*y
+t1 = time.time()
+print(t1-t0)
+# 6.893776178359985 s
+t0 = time.time()
+z_lo=x.lo*y.lo
+t1 = time.time()
+print(t1-t0)
+# 0.4369039535522461 s
+```
+
+A comparison across increasing sizes of square matrices, reveals the performance of `Interval` against `ndarray` matrices:
+
+![png](docs/figures/versus_ndarray.png)
+
+The above comparsion was done between matrices of shape: `(100,100)`, `(500,500)`, `(1_000,1_000)`, `(5_000,5_000)`, `(10_000,10_000)`, and `(20_000,20_000)`.

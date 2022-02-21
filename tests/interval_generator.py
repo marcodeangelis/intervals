@@ -1,6 +1,7 @@
 import numpy
 
 from intervals.number import Interval
+from intervals.methods import intervalise
 
 LEFT_BOUND = -1_000
 RIGHT_BOUND= 1_000
@@ -32,3 +33,8 @@ def pick_endpoints_at_random_uniform(n:int=2, left_bound:float=None, right_bound
     if numpy.sum(swap)>0: proper_lo[swap],proper_hi[swap]=proper_hi[swap],proper_lo[swap]
     return (proper_lo, proper_hi)
 
+def create_two_large_interval_matrices(shape,left_bound=0,right_bound=1):
+    # shape=(100000,100000)
+    x = intervalise(pick_endpoints_at_random_uniform(shape=shape,left_bound=left_bound,right_bound=right_bound))
+    y = intervalise(pick_endpoints_at_random_uniform(shape=shape,left_bound=left_bound,right_bound=right_bound))
+    return x,y
