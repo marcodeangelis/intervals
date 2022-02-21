@@ -1,5 +1,4 @@
-[![codecov](https://codecov.io/gh/marcodeangelis/intervals/branch/main/graph/badge.svg?token=JM6Z8NDNUU)](https://codecov.io/gh/marcodeangelis/intervals)
-
+[![codecov](https://codecov.io/gh/marcodeangelis/intervals/branch/main/graph/badge.svg?token=JM6Z8NDNUU)](https://codecov.io/gh/marcodeangelis/intervals) 
 ![Build Status (https://github.com/marcodeangelis/intervals/actions/workflows/codecov.yml/badge.svg)](https://github.com/marcodeangelis/intervals/actions/workflows/codecov.yml/badge.svg)
 
 # Welcome!
