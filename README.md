@@ -1,6 +1,6 @@
 [![codecov](https://codecov.io/gh/marcodeangelis/intervals/branch/main/graph/badge.svg?token=JM6Z8NDNUU)](https://codecov.io/gh/marcodeangelis/intervals) 
 ![Build Status (https://github.com/marcodeangelis/intervals/actions/workflows/codecov.yml/badge.svg)](https://github.com/marcodeangelis/intervals/actions/workflows/codecov.yml/badge.svg)
-
+![zenodo (https://zenodo.org/badge/DOI/10.5281/zenodo.6205624.svg)](https://zenodo.org/badge/DOI/10.5281/zenodo.6205624.svg)
 # Welcome!
 *intervals* is a library for interval computing in Python.
 
