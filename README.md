@@ -282,7 +282,7 @@ print(a/x)
 
 ## Universal interval parser
 
-The library provides a wrapper of the Numpy `asarray` parser to turn data structures in to interval array-like structures. The interval parser is called `intervalise`.
+The library provides a wrapper of the Numpy `asarray` parser to turn data structures in to array-like interval structures. The interval parser is called `intervalise`.
 Any array-like structure with the last dimension of size two qualifies as an interval. 
 
 For example the data structure:
@@ -292,7 +292,7 @@ ds = [[[1,2], [2,3], [4,5]],
       [[-1,2],[-2,1],[3,5]],
       [[0,2], [3,4], [6,8]]]
 ```
-can be interpreted as a matrix of intervals. After Numpy parsing, such a structure will have shape `(3,3,2)`. Because the last dimension has size two, this will be turned into intervals:
+can be interpreted as a matrix of intervals. After Numpy parsing, such a structure will have shape `(3,3,2)`. Because the last dimension has size two, this data structure can be turned into an interval of shape `(3,3)`:
 
 ```python
 x = intervalise(ds)
@@ -312,7 +312,7 @@ For example the data strcture:
 ds = [[1,2],[2,3],[4,5],[5,6]]
 ```
 
-after Numpy parsing has shape `(4,2)`. After parsing it becomes the following interval:
+The structure has shape `(4,2)`. `intervalise` turns it in the following interval:
 
 ```python
 x = intervalise(ds)
@@ -331,7 +331,7 @@ Another example is the following data structure:
 ds = [[1,2,4,5],[2,3,5,6]]
 ```
 
-which has shape `(2,4)`. The first dimension has size two, so it will also be parsed as an interval:
+which has shape `(2,4)`. The first dimension has size two, so it can also be parsed as an interval. `intervalise` will turn this structure in an interval vector:
 
 ```python
 x = intervalise(ds)
@@ -344,7 +344,7 @@ print(x)
 # [5.0,6.0]
 ```
 
-resulting in the same interval as the structure before. This could be seen, for example, as a list of left and right endpoints.
+In fact, the data structure `ds = [[1,2,4,5],[2,3,5,6]]`, could be seen as a list of left and right endpoints.
 
 In case of ambiguity the last dimension is prioritised over the first. So for example: 
 
