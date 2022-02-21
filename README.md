@@ -30,7 +30,7 @@ You can reach us at `mda@liverpool.ac.uk`.
 ## References
 
 
-# Getting started
+# Installation
 First, download or clone this repository on your local machine.
 
 If you don't have Github ssh keys (you may have to enter your github password) use:
@@ -44,6 +44,8 @@ Otherwise:
 ```
 If you don't have a Github account, just click on the code green button, and hit Download. This will zip and download the code in your designated downloads folder.
 ```
+
+Then, open a code editor in the cloned or downloaded folder. 
 
 ## Dependencies
 
