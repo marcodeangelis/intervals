@@ -31,12 +31,23 @@ Disclaimer: This implmentation of interval arithmetic is rigorous in the sense o
 You can reach us at `mda@liverpool.ac.uk`.
 
 ## References
+[1] Ramon E Moore. *Interval analysis*, volume 4. Prentice-Hall Englewood Cliffs, 1966.
 
+[2] Arnold Neumaier. *Interval methods for systems of equations*. Number 37. Cambridge university press, 1990.
+
+[3] Alefeld, G. and Mayer, G., 2000. *Interval analysis: theory and applications*. Journal of computational and applied mathematics, 121(1-2), pp.421-464.
+
+[4] Jaulin, L., Kieffer, M., Didrit, O. and Walter, E., 2001. *Interval analysis*. In Applied interval analysis (pp. 11-43). Springer, London.
+
+[5] Caprani, O., Madsen, K., & Nielsen, H. B. (2002). *Introduction to Interval Analysis*. http://www2.imm.dtu.dk/pubdb/p.php?1462
+
+[6] Kearfott, R.B., et al. (2010). *Standardized notation in interval analysis* https://interval.louisiana.edu/preprints/Shary_n.pdf
 
 # Installation
 First, download or clone this repository on your local machine.
 
 If you don't have Github ssh keys (you may have to enter your github password) use:
+
 `git clone  https://github.com/marcodeangelis/intervals.git`
 
 Otherwise:
@@ -44,9 +55,9 @@ Otherwise:
 `git clone git@github.com:marcodeangelis/intervals.git`
 
 
-```
-If you don't have a Github account, just click on the code green button, and hit Download. This will zip and download the code in your designated downloads folder.
-```
+
+> If you don't have a Github account, just click on the code green button, and hit Download. This will zip and download the code in your designated downloads folder.
+
 
 Then, open a code editor in the cloned or downloaded folder. 
 
@@ -71,14 +82,16 @@ $ python3 -m venv myenv
 
 $ source myenv/bin/activate 
 
-# On Windows replace the second line with: $ myenv\Scripts\activate
+# On Windows replace the second line with: 
+
+#$ myenv\Scripts\activate
 
 (myenv) $ pip install -r requirements.txt
 ```
 
 # Intervals
 
-Let's see what this code in action.
+Let's see this code in action.
 
 
 ## Importing the code
