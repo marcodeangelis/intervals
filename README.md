@@ -208,7 +208,7 @@ Array-like intervals are intervals which  endpoints are array-like structures. W
 
 (2) array of shape (n,m) or __matrix__ or __2d array__
 
-(3) array of shape (n,m,o) or __3d array__
+(3) array of shape (n,m,l) or __3d array__
 
 (4) array of shape (n,m,...) or __Nd array__
 
