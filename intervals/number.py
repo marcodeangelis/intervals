@@ -56,10 +56,9 @@ class Interval():
     def __init__(self,
                  lo: Union[float,ndarray], 
                  hi: Optional[Union[float,ndarray]] = None) -> None:
-        if hi is None:
-            hi = lo.copy()
-        self.__unsized = True
         self.__lo = asarray(lo, dtype=float)
+        if hi is None: hi = lo.copy()
+        self.__unsized = True
         self.__hi = asarray(hi, dtype=float) # check lo and hi have same shape
         # if (len(self.__hi.shape)>0) | (len(self.__hi.shape)>0): self.__unsized = False
         self.__shape = self.__lo.shape
