@@ -408,6 +408,6 @@ print(t1-t0)
 
 A comparison across increasing sizes of square matrices, reveals the performance of `Interval` against `ndarray` matrices:
 
-![png](docs/figures/versus_ndarray.png)
+![png](./figures/versus_ndarray.png)
 
 The above comparsion was done between matrices of shape: `(100,100)`, `(500,500)`, `(1_000,1_000)`, `(5_000,5_000)`, `(10_000,10_000)`, and `(20_000,20_000)`.
