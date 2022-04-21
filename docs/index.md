@@ -1,6 +1,6 @@
 # Welcome!
 
-<img src="docs/icon/file-solid.svg" width="20" height="20"> [https://marcodeangelis.github.io/intervals/](https://marcodeangelis.github.io/intervals/)
+[![png](./logos/GitHub-Mark-32px.png)](https://github.com/marcodeangelis/intervals)[https://github.com/marcodeangelis/intervals](https://github.com/marcodeangelis/intervals)
 
 [![codecov](https://codecov.io/gh/marcodeangelis/intervals/branch/main/graph/badge.svg?token=JM6Z8NDNUU)](https://codecov.io/gh/marcodeangelis/intervals) 
 ![Build Status (https://github.com/marcodeangelis/intervals/actions/workflows/codecov.yml/badge.svg)](https://github.com/marcodeangelis/intervals/actions/workflows/codecov.yml/badge.svg)
@@ -408,6 +408,6 @@ print(t1-t0)
 
 A comparison across increasing sizes of square matrices, reveals the performance of `Interval` against `ndarray` matrices:
 
-![png](docs/figures/versus_ndarray.png)
+![png](./figures/versus_ndarray.png)
 
 The above comparsion was done between matrices of shape: `(100,100)`, `(500,500)`, `(1_000,1_000)`, `(5_000,5_000)`, `(10_000,10_000)`, and `(20_000,20_000)`.
