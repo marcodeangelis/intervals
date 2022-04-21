@@ -57,7 +57,7 @@ class Interval():
                  lo: Union[float,ndarray], 
                  hi: Optional[Union[float,ndarray]] = None) -> None:
         self.__lo = asarray(lo, dtype=float)
-        if hi is None: hi = lo.copy()
+        if hi is None: hi = self.__lo.copy()
         self.__unsized = True
         self.__hi = asarray(hi, dtype=float) # check lo and hi have same shape
         # if (len(self.__hi.shape)>0) | (len(self.__hi.shape)>0): self.__unsized = False
