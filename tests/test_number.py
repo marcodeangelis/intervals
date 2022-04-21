@@ -207,6 +207,12 @@ class TestIntervalArithmetic(unittest.TestCase):
             self.assertAlmostEqual(hi(z3), hi(yi_mul_ai), places=7)
             self.assertAlmostEqual(lo(z4), lo(yi_div_ai), places=7)
             self.assertAlmostEqual(hi(z4), hi(yi_div_ai), places=7)
+    def parsing_degenerate_intervals(self):
+        a = numpy.random.rand()
+        x = I(a)
+        self.assertEqual(lo(x), a)
+        self.assertEqual(hi(x), a)
+
 
 if __name__ == '__main__':
     # logging.basicConfig(stream=sys.stderr,level=logging.DEBUG)
