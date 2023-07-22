@@ -101,14 +101,12 @@ class Interval():
         return Interval(lo=self.__lo[i],hi=self.__hi[i])
     # -------------- METHODS -------------- #
     @property
-    def lo(self) -> Union[ndarray,float]:
-        if len(self.shape)==0: return float(self.__lo)
-        return self.__lo
+    def lo(self) -> Union[ndarray,float]: return self.__lo
+        # if len(self.shape)==0: return self.__lo
         # return self.__lo # return transpose(transpose(self.__val)[0]) # from shape (3,7,2) to (2,7,3) to (3,7)
     @property
-    def hi(self) -> Union[ndarray,float]:
-        if len(self.shape)==0: return float(self.__hi)
-        return self.__hi
+    def hi(self) -> Union[ndarray,float]: return self.__hi
+        # if len(self.shape)==0: return self.__hi
         # return self.__hi # return transpose(transpose(self.__val)[1])
     @property
     def unsized(self):
