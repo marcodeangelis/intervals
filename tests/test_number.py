@@ -16,8 +16,8 @@ class TestIntervalArithmetic(unittest.TestCase):
         """
         # log = logging.getLogger("TestLog")
         # log.debug("testing addition hundred times between random intervals")
-        x = intervalise(pick_endpoints_at_random_uniform(n=100))
-        y = intervalise(pick_endpoints_at_random_uniform(n=100))
+        x = pick_endpoints_at_random_uniform(n=100)
+        y = pick_endpoints_at_random_uniform(n=100)
         for xi,yi in zip(x,y):
             xi_op_yi = xi+yi
             a,b = [lo(xi),hi(xi)], [lo(yi),hi(yi)] 
@@ -29,8 +29,8 @@ class TestIntervalArithmetic(unittest.TestCase):
         """
         Test subtraction 100 times between random intervals.
         """
-        x = intervalise(pick_endpoints_at_random_uniform(n=100))
-        y = intervalise(pick_endpoints_at_random_uniform(n=100))
+        x = pick_endpoints_at_random_uniform(n=100)
+        y = pick_endpoints_at_random_uniform(n=100)
         for xi,yi in zip(x,y):
             xi_op_yi = xi-yi
             a,b = [lo(xi),hi(xi)], [lo(yi),hi(yi)] 
@@ -42,8 +42,8 @@ class TestIntervalArithmetic(unittest.TestCase):
         """
         Test multiplication 100 times between random intervals.
         """
-        x = intervalise(pick_endpoints_at_random_uniform(n=100))
-        y = intervalise(pick_endpoints_at_random_uniform(n=100))
+        x = pick_endpoints_at_random_uniform(n=100)
+        y = pick_endpoints_at_random_uniform(n=100)
         for xi,yi in zip(x,y):
             xi_op_yi = xi*yi
             a,b = [lo(xi),hi(xi)], [lo(yi),hi(yi)] 
@@ -55,8 +55,8 @@ class TestIntervalArithmetic(unittest.TestCase):
         """
         Test division 100 times between random intervals.
         """
-        x = intervalise(pick_endpoints_at_random_uniform(n=100))
-        y = intervalise(pick_endpoints_at_random_uniform(n=100,left_bound=0.001))
+        x = pick_endpoints_at_random_uniform(n=100)
+        y = pick_endpoints_at_random_uniform(n=100,left_bound=0.001)
         for xi,yi in zip(x,y):
             xi_plus_yi = xi/yi
             a,b = [lo(xi),hi(xi)], [lo(yi),hi(yi)] 
@@ -68,8 +68,8 @@ class TestIntervalArithmetic(unittest.TestCase):
         """
         Test element-wise operations between two dimensional arrays of intervals.
         """
-        x = intervalise(pick_endpoints_at_random_uniform(shape=(100,4)))
-        y = intervalise(pick_endpoints_at_random_uniform(shape=(100,4),left_bound=0.001))
+        x = pick_endpoints_at_random_uniform(shape=(100,4))
+        y = pick_endpoints_at_random_uniform(shape=(100,4),left_bound=0.001)
         x_add_y = x+y
         x_sub_y = x-y
         x_mul_y = x*y
@@ -91,8 +91,8 @@ class TestIntervalArithmetic(unittest.TestCase):
         """
         Test element-wise operations between three dimensional arrays of intervals.
         """
-        x = intervalise(pick_endpoints_at_random_uniform(shape=(10,3,3)))
-        y = intervalise(pick_endpoints_at_random_uniform(shape=(10,3,3),left_bound=0.001))
+        x = pick_endpoints_at_random_uniform(shape=(10,3,3))
+        y = pick_endpoints_at_random_uniform(shape=(10,3,3),left_bound=0.001)
         x_add_y = x+y
         x_sub_y = x-y
         x_mul_y = x*y
@@ -114,8 +114,8 @@ class TestIntervalArithmetic(unittest.TestCase):
         """
         Test element-wise operations between array-like and scalar intervals.
         """
-        a = intervalise(pick_endpoints_at_random_uniform(n=1,left_bound=-1,right_bound=1))
-        y = intervalise(pick_endpoints_at_random_uniform(shape=(10,3,3),left_bound=0.001))
+        a = pick_endpoints_at_random_uniform(n=1,left_bound=-1,right_bound=1)
+        y = pick_endpoints_at_random_uniform(shape=(10,3,3),left_bound=0.001)
         a_add_y = a+y
         a_sub_y = a-y
         a_mul_y = a*y
@@ -137,8 +137,8 @@ class TestIntervalArithmetic(unittest.TestCase):
         """
         Test element-wise operations between array-like and scalar intervals.
         """
-        a = intervalise(pick_endpoints_at_random_uniform(n=1,left_bound=0.001,right_bound=1))
-        y = intervalise(pick_endpoints_at_random_uniform(shape=(10,3,3),left_bound=0.001))
+        a = pick_endpoints_at_random_uniform(n=1,left_bound=0.001,right_bound=1)
+        y = pick_endpoints_at_random_uniform(shape=(10,3,3),left_bound=0.001)
         y_add_a = y+a
         y_sub_a = y-a
         y_mul_a = y*a
@@ -161,7 +161,7 @@ class TestIntervalArithmetic(unittest.TestCase):
         Test element-wise operations between array-like and non-interval numbers.
         """
         a = -10 + numpy.random.rand() * 20 # a random number between -10 and 10
-        y = intervalise(pick_endpoints_at_random_uniform(n=100,left_bound=0.001))
+        y = pick_endpoints_at_random_uniform(n=100,left_bound=0.001)
         for yi in y:
             yi_add_a = yi+a
             yi_sub_a = yi-a
@@ -189,7 +189,7 @@ class TestIntervalArithmetic(unittest.TestCase):
         Test element-wise operations between array-like and non-interval numbers.
         """
         a = -10 + numpy.random.rand() * 20
-        y = intervalise(pick_endpoints_at_random_uniform(shape=(7,4,3),left_bound=0.001))
+        y = pick_endpoints_at_random_uniform(shape=(7,4,3),left_bound=0.001)
         y_add_a = y+a
         y_sub_a = y-a
         y_mul_a = y*a
