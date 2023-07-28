@@ -9,7 +9,7 @@ MIT License
 ------------------------------
 
 These methods are designed to behave neutrally on non-interval inputs. 
-So, if a non-interval is passed rules of standard arithmetic apply.
+So, if a non-interval is passed standard rules for floats apply.
 
 Interval to float methods, IR -> R:
 
@@ -18,10 +18,10 @@ Interval to bool methods, IR -> {0,1}:
 Binary operations, IR2 -> IR
 Unary operations, IR -> IR
 
-Parser, Rn -> IRm: 
+Parser, R^(nx2) -> IR^n, R^(mxnx2) -> IR^(mxn), R^(2xmxn) -> IR^(mxn)
 This method turns an array of compatible dimension into an interval (array).
 
-Subintervalisation methods, IR -> IRn.
+Subintervalisation methods, IR -> IR^n.
 
 """
 from __future__ import annotations
@@ -39,9 +39,18 @@ numpy_max = numpy.max
 numpy_sqrt= numpy.sqrt
 numpy_exp = numpy.exp
 numpy_sum = numpy.sum
+numpy_sin = numpy.sin
+numpy_cos = numpy.cos
+numpy_tan = numpy.tan
+# numpy_cot = numpy.cotang
+numpy_pi  = numpy.pi
+numpy_inf = numpy.Inf
 
 # Properties or maybe attributes of the interval class. These apply to all interval-like objects.
 
+#####################################################################################
+# methods.py
+#####################################################################################
 # Interval to float methods, Unary.
 def lo(x: Interval) -> Union[float, ndarray]:
     """
@@ -98,6 +107,9 @@ def mig(x):
 def mag(x):
     pass
 
+#####################################################################################
+# unary.py
+#####################################################################################
 # Interval to interval methods. Unary.
 def abs(x:Interval):
     """
@@ -136,63 +148,328 @@ def sqrt(x:Interval):
     return x_lo_sqrt
 
 def exp(x:Interval):
-    if is_not_Interval(x): return numpy.exp(x)
+    if ~is_Interval(x): return numpy.exp(x)
     return Interval(numpy_exp(lo(x)),numpy_exp(hi(x)))
     
-
+#####################################################################################
+# binary.py
+#####################################################################################
 # Binary methods between two intervals
 # 2-interval to interval. Bianry.
 def max(x:Interval, y:Interval):
-    if all([is_not_Interval(x),is_not_Interval(y)]):
+    if all([~is_Interval(x),~is_Interval(y)]):
         return numpy.max((x,y), axis=0)
     a = numpy.max((lo(x),lo(y)), axis=0)
     b = numpy.max((hi(x),hi(y)), axis=0)
     return Interval(a,b)
 def min(x:Interval, y:Interval): 
-    if all([is_not_Interval(x),is_not_Interval(y)]):
+    if all([~is_Interval(x),~is_Interval(y)]):
         return numpy.min((x,y), axis=0)
     a = numpy.min((lo(x),lo(y)), axis=0)
     b = numpy.min((hi(x),hi(y)), axis=0)
     return Interval(a,b)
 
-def set_difference(x:Interval,y:Interval):
+#####################################################################################
+# trig.py
+#####################################################################################
+def sin(x:Interval): 
+    '''
+    Implementation of Interval Arithmetic in CORA 2016
+
+    Matthias Althoff and Dmitry Grebenyuk
+    
+    EPiC Series in Computing Volume 43, 2017, Pages 91-105
+
+    ARCH16. 3rd International Workshop on Applied Verification for Continuous and Hybrid Systems
+    '''
+    if not(is_Interval(x)): return numpy_sin(x) # int, float, ndarray
+
+    if not(x.scalar): return sin_vector(x) 
+
+    twopi = 2*numpy_pi
+    pihalf = numpy_pi/2
+
+    if width(x)>=twopi: return Interval(-1,1)
+
+    domain1 = Interval(0, pihalf)
+    domain2 = Interval(pihalf, 3*pihalf)
+    domain3 = Interval(3*pihalf, twopi)
+
+    yl = x.lo%twopi
+    yh = x.hi%twopi
+    y = Interval(lo=yl,hi=yh)
+
+    sin_l = numpy_sin(yl)
+    sin_h = numpy_sin(yh)
+
+    if contain(domain1,y) & (yl<=yh): return Interval(sin_l,sin_h)
+    if contain(domain2,y) & (yl<=yh): return Interval(sin_h,sin_l)
+    if contain(domain3,y) & (yl<=yh): return Interval(sin_l,sin_h)
+
+    case1a = contain(domain1,yl) & contain(domain1,yh) & (yl>yh)
+    case1b = contain(domain1,yl) & contain(domain3,yh) 
+    case1c = contain(domain2,yl) & contain(domain2,yh) & (yl>yh)
+    case1d = contain(domain3,yl) & contain(domain3,yh) & (yl>yh) 
+
+    case2a = contain(domain1,yl) & contain(domain1,yh) & (yl<=yh)
+    case2b = contain(domain3,yl) & contain(domain1,yh) 
+    case2c = contain(domain3,yl) & contain(domain3,yh) & (yl<=yh)
+
+    case3a = contain(domain1,yl) & contain(domain2,yh) 
+    case3b = contain(domain3,yl) & contain(domain2,yh) 
+
+    case4a = contain(domain2,yl) & contain(domain1,yh) 
+    case4b = contain(domain2,yl) & contain(domain3,yh) 
+
+    case5 = contain(domain2,yl) & contain(domain2,yh) & (yl<=yh) 
+
+    if case1a | case1b | case1c | case1d : return Interval(-1,1)
+    if case2a | case2b | case2c : return Interval(sin_h,sin_l)
+    if case3a | case3b : return Interval(min(sin_l,sin_h),1)
+    if case4a | case4b : return Interval(-1,max(sin_l,sin_h))
+    if case5: return Interval(sin_h,sin_l)
+
     pass
 
-def split_interval(x:Interval,y:float=None):
-    if y is None: return Interval(lo(x),mid(x)), Interval(mid(x),hi(x))
+def sin_vector(x:Interval): # vectorised version of sin().
 
-    x1, x2 = Interval(lo(x),hi(x)), Interval(lo(x),hi(x)) # TODO: implement copy method
-    y_in_x = contain(x,y)
-    if x.unsized: 
-        if ~y_in_x: return x1,x2
-        return Interval(lo=lo(x),hi=y),  Interval(lo=y,hi=hi(x))
-    else: pass
-        # x1[y_in_x] = Interval(lo(x)[y_in_x],hi=y)
-        # x2[y_in_x] = Interval(y,hi=hi(x)[y_in_x])
-    return x1,x2
+    if x.unsized: return sin(x)
+
+    twopi = 2*numpy_pi
+    pihalf = numpy_pi/2
+    
+    mask1a = width(x)>=twopi
+
+    domain1 = Interval(0, pihalf)
+    domain2 = Interval(pihalf, 3*pihalf)
+    domain3 = Interval(3*pihalf, twopi)
+
+    yl = x.lo%twopi
+    yh = x.hi%twopi
+    y = Interval(yl,yh)
+
+    sin_l = numpy_sin(yl)
+    sin_h = numpy_sin(yh)
+
+    # [l,h]
+    a = sin_l.copy()
+    b = sin_h.copy()
+
+    # [-1,1]
+    mask3a = contain(domain1,yl) & contain(domain1,yh) & (yl>yh) 
+    mask3b = contain(domain1,yl) & contain(domain3,yh) 
+    mask3c = contain(domain2,yl) & contain(domain2,yh) & (yl>yh) 
+    mask3d = contain(domain3,yl) & contain(domain3,yh) & (yl>yh) 
+    case1 = mask1a|mask3a|mask3b|mask3c|mask3d
+    a[case1] = -1
+    b[case1] =  1
+    if all(case1): return Interval(lo=a,hi=b)
+    # [h,l]
+    mask2b = contain(domain2,yl[~case1]) & contain(domain2,yh[~case1]) & (yl[~case1]<=yh[~case1])  #return Interval(sin_h,sin_l)
+    mask4a = contain(domain1,yl[~case1]) & contain(domain1,yh[~case1]) & (yl[~case1]<=yh[~case1]) 
+    mask4b = contain(domain3,yl[~case1]) & contain(domain1,yh[~case1]) 
+    mask4c = contain(domain3,yl[~case1]) & contain(domain3,yh[~case1]) & (yl[~case1]<=yh[~case1]) 
+    case2 = mask2b|mask4a|mask4b|mask4c
+    a[case2] = sin_h[case2]
+    b[case2] = sin_l[case2]
+    # [min, 1]
+    mask5a = contain(domain1,yl[~case1]) & contain(domain2,yh[~case1]) 
+    mask5b = contain(domain3,yl[~case1]) & contain(domain2,yh[~case1])
+    case3 = mask5a|mask5b
+    a[case3] = min(sin_l[case3],sin_h[case3]) 
+    b[case3] = 1
+    # [-1, max]
+    mask6a = contain(domain2,yl[~case1]) & contain(domain1,yh[~case1]) 
+    mask6b = contain(domain2,yl[~case1]) & contain(domain3,yh[~case1]) 
+    case4 = mask6a|mask6b
+    a[case4] = -1
+    b[case4] = max(sin_l[case4],sin_h[case4])
+    return Interval(lo=a,hi=b)
+
+def cos(x:Interval): 
+    '''
+    Implementation of Interval Arithmetic in CORA 2016
+
+    Matthias Althoff and Dmitry Grebenyuk
+    
+    EPiC Series in Computing Volume 43, 2017, Pages 91-105
+
+    ARCH16. 3rd International Workshop on Applied Verification for Continuous and Hybrid Systems
+    '''
+    if not(is_Interval(x)): return numpy_cos(x) # int, float, ndarray
+
+    if not(x.scalar): return cos_vector(x) 
+
+    twopi = 2*numpy_pi
+
+    # [-1,1] aka case 0
+    if width(x)>=twopi: return Interval(-1,1)
+
+    domain1 = Interval(0, numpy_pi)
+    domain2 = Interval(numpy_pi, 2*numpy_pi)
+
+    yl = x.lo%twopi
+    yh = x.hi%twopi
+    y = Interval(lo=yl,hi=yh)
+
+    cos_l = numpy_cos(yl)
+    cos_h = numpy_cos(yh)
+
+    # [-1,1]
+    case1a = (yh<yl) & contain(domain1,yl) & contain(domain1,yh)
+    case1b = (yh<yl) & contain(domain2,yl) & contain(domain2,yh)
+    # [cos_l, cos_h]
+    case2a = (yl<=yh) & contain(domain2,yl) & contain(domain2,yh)
+    # [min(cos_l, cos_h), 1]
+    case3a = contain(domain2,yl) & contain(domain1,yh)
+    # [-1, max(cos_l, cos_h)] 
+    case4a = contain(domain1,yl) & contain(domain2,yh)
+    # [cos_h, cos_l]
+    case5a = (yl<=yh) & contain(domain1,yl) & contain(domain1,yh)
+
+    if case1a | case1b: return Interval(-1,1)
+    if case2a: return Interval(cos_l, cos_h)
+    if case3a: return Interval(min(cos_l,cos_h), 1)
+    if case4a: return Interval(-1, max(cos_l,cos_h))
+    if case5a: return Interval(cos_h, cos_l)
+
+
+def cos_vector(x:Interval): # vectorised version of cos()
+    if x.unsized: return sin(x)
+
+    twopi = 2*numpy_pi
+
+    case0 = width(x)>=twopi
+
+    domain1 = Interval(0, numpy_pi)
+    domain2 = Interval(numpy_pi, 2*numpy_pi)
+
+    yl = x.lo%twopi
+    yh = x.hi%twopi
+
+    cos_l = numpy_cos(yl)
+    cos_h = numpy_cos(yh)
+
+    a = cos_l.copy()
+    b = cos_h.copy()
+
+    # [-1,1]
+    case1a = (yh<yl) & contain(domain1,yl) & contain(domain1,yh)
+    case1b = (yh<yl) & contain(domain2,yl) & contain(domain2,yh)
+    case1 = case0 | case1a | case1b 
+    a[case1] = -1
+    b[case1] =  1
+    # [cos_l, cos_h]
+    # case2 = (yl<=yh) & contain(domain2,yl) & contain(domain2,yh)
+    # a[case2] = cos_l[case2]
+    # b[case2] = cos_h[case2]
+    # [min(cos_l, cos_h), 1]
+    case3 = contain(domain2,yl) & contain(domain1,yh)
+    a[case3] = min(cos_l[case3],cos_h[case3])
+    b[case3] = 1
+    # [-1, max(cos_l, cos_h)] 
+    case4 = contain(domain1,yl) & contain(domain2,yh)
+    a[case4] = -1
+    b[case4] = max(cos_l[case4], cos_h[case4])
+    # [cos_h, cos_l]
+    case5 = (yl<=yh) & contain(domain1,yl) & contain(domain1,yh)
+    a[case5] = cos_h[case5]
+    b[case5] = cos_l[case5]
+    return Interval(lo=a, hi=b)
+
+def tan(x:Interval):
+    '''
+    Implementation of Interval Arithmetic in CORA 2016
+
+    Matthias Althoff and Dmitry Grebenyuk
+    
+    EPiC Series in Computing Volume 43, 2017, Pages 91-105
+
+    ARCH16. 3rd International Workshop on Applied Verification for Continuous and Hybrid Systems
+    '''
+
+    if not(is_Interval(x)): return numpy_tan(x) # int, float, ndarray
+
+    if not(x.scalar): return tan_vector(x) 
+
+    pihalf = numpy_pi/2
+
+    domain1 = Interval(0, pihalf)
+    domain2 = Interval(pihalf, numpy_pi)
+
+    zl = x.lo%numpy_pi
+    zh = x.hi%numpy_pi
+
+    #[-∞, ∞] 
+    case1a = width(x)>numpy_pi
+    case1b = (zh<zl) & contain(domain1,zl) & contain(domain1,zh)
+    case1c = (zh<zl) & contain(domain2,zl) & contain(domain2,zh)
+    case1d = contain(domain1,zl) & contain(domain2,zh)
+
+    #[tan_l, tan_h]
+    case2a = (zl<=zh) & contain(domain1,zl) & contain(domain1,zh)
+    case2b = (zl<=zh) & contain(domain2,zl) & contain(domain2,zh)
+    
+    if case1a | case1b | case1c | case1d: return Interval(-numpy_inf, numpy_inf)
+    if case2a | case2b: return Interval(tan(zl), tan(zh))
+    else: return Interval(tan(zl), tan(zh))
+
+def tan_vector(x:Interval): # Vectorised version of tan().
+    if x.unsized: return tan(x)
+
+    pihalf = numpy_pi/2
+
+    domain1 = Interval(0, pihalf)
+    domain2 = Interval(pihalf, numpy_pi)
+
+    zl = x.lo%numpy_pi
+    zh = x.hi%numpy_pi
+
+    tan_l = tan(zl)
+    tan_h = tan(zh)
+
+    a = tan_l.copy()
+    b = tan_h.copy()
+
+     #[-∞, ∞] 
+    case1a = width(x)>numpy_pi
+    case1b = (zh<zl) & contain(domain1,zl) & contain(domain1,zh)
+    case1c = (zh<zl) & contain(domain2,zl) & contain(domain2,zh)
+    case1d = contain(domain1,zl) & contain(domain2,zh)
+    case1 = case1a | case1b | case1c | case1d
+    a[case1] = -numpy_inf
+    b[case1] = numpy_inf
+
+    # #[tan_l, tan_h]
+    # case2a = (zl<=zh) & contain(domain1,zl) & contain(domain1,zh)
+    # case2b = (zl<=zh) & contain(domain2,zl) & contain(domain2,zh)
+    return Interval(lo=a, hi=b)
+
 
 # Interval to ndarray[float]
-# def linspace():pass
-
-# Interval to float methods, Binary.
-def union(): pass
-def intersection(): pass
-def difference(): pass
+# def linspace(): 
 
 
-# Interval to bool methods, Unary.
-def is_Interval(x:Any) -> bool: return x.__class__.__name__ == 'Interval'
-def is_not_Interval(x:Any) -> bool: return x.__class__.__name__ != 'Interval'
+# def union(): pass # spell the difference between union and subpaving.
+# def intersection():  
+# def difference():  
+# def set_difference(x:Interval,y:Interval):  
 
+#####################################################################################
+# set.py
+#####################################################################################
 def straddle_zero(x: Interval) -> bool:
     if x.unsized: return (lo(x)<=0) & (hi(x)>=0)
     else: return any((lo(x).flatten()<=0) & (hi(x).flatten()>=0))
 
 # Interval to bool methods, Binary.
 # ...
-def intersect(x:Interval, y:Interval): return ~((x<y) | (y<x)) # commutative
+def intersect(x:Interval, y:Interval): return ~((x<y) | (y<x)) # commutative 
 def contain(x:Interval, y:Interval):  return (lo(x)<=lo(y)) & (hi(x)>=hi(y)) # x contain y
 
+#####################################################################################
+# parser.py
+#####################################################################################
 # Universal parser
 def intervalise(x_: Any, index = -1) -> Union[Interval,Any]:
     """
@@ -219,6 +496,8 @@ def intervalise(x_: Any, index = -1) -> Union[Interval,Any]:
 
     It returns an interval only if the input is an array-like structure, otherwise it returns the following numpy error:
     `ValueError: setting an array element with a sequence.`
+
+    TODO: Parse a list of mixed numbers: interval and ndarrays.
 
     """
     if x_.__class__.__name__=='Interval': return x_
@@ -256,6 +535,9 @@ def unsizeit(x:Interval) -> Interval:
             return Interval(lo=x.lo[0], hi=x.hi[0])
     return x
 
+#####################################################################################
+# subint.py
+#####################################################################################
 def subintervalise(x_:Interval, n:Union[int,tuple]=0):
     x = intervalise(x_)
     d = len(x.shape) # dimension of the array
@@ -276,6 +558,18 @@ def subintervalise(x_:Interval, n:Union[int,tuple]=0):
     else: print('!! Subtiling not yet supported for interval arrays of dimension 2 or larger. Input will be returned.')
     return x
 
+def split_interval(x:Interval,y:float=None):
+    if y is None: return Interval(lo(x),mid(x)), Interval(mid(x),hi(x))
+
+    x1, x2 = Interval(lo(x),hi(x)), Interval(lo(x),hi(x)) # TODO: implement copy method
+    y_in_x = contain(x,y) # x contain y
+    if x.unsized: 
+        if ~y_in_x: return x1,x2
+        return Interval(lo=lo(x),hi=y),  Interval(lo=y,hi=hi(x))
+    else: pass
+        # x1[y_in_x] = Interval(lo(x)[y_in_x],hi=y)
+        # x2[y_in_x] = Interval(y,hi=hi(x)[y_in_x])
+    return x1,x2
 
 def reconstitute(x_:Interval):
     x = intervalise(x_)
@@ -306,3 +600,10 @@ def bisect(x_:Interval,i:int=None):
     n[split_index]=2 # ex: (0,0,2,0,0,0) if interval of dim 6 has third dimension bisected
     x_bisect = subintervalise(x,n=tuple(n))
     return x_bisect[0], x_bisect[1]
+
+#####################################################################################
+# types.py
+#####################################################################################
+# Interval to bool methods, Unary.
+def is_Interval(x:Any) -> bool: return x.__class__.__name__ == 'Interval'
+def is_not_Interval(x:Any) -> bool: return x.__class__.__name__ != 'Interval' # Equivalent to ~is_Interval(x), use to improves code readability.
