@@ -1,0 +1,20 @@
+# file: pyproject.toml
+
+[build-system]
+requires = [
+    "setuptools >= 68.0.0",
+    "wheel >= 0.41.0,
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "intervals"
+version = "0.1.2"
+authors = [
+    {name = "Marco de Angelis", email = "marco.de-angelis@strath.ac.uk"},
+]
+requires-python = ">=3.7"
+description = "Emulated interval arithmetic in Python."
+dependencies = [
+    "numpy",
+]
