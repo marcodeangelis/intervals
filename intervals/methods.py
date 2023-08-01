@@ -157,13 +157,13 @@ def exp(x:Interval):
 # Binary methods between two intervals
 # 2-interval to interval. Bianry.
 def max(x:Interval, y:Interval):
-    if all([~is_Interval(x),~is_Interval(y)]):
+    if all([is_not_Interval(x),is_not_Interval(y)]):
         return numpy.max((x,y), axis=0)
     a = numpy.max((lo(x),lo(y)), axis=0)
     b = numpy.max((hi(x),hi(y)), axis=0)
     return Interval(a,b)
 def min(x:Interval, y:Interval): 
-    if all([~is_Interval(x),~is_Interval(y)]):
+    if all([is_not_Interval(x),is_not_Interval(y)]):
         return numpy.min((x,y), axis=0)
     a = numpy.min((lo(x),lo(y)), axis=0)
     b = numpy.min((hi(x),hi(y)), axis=0)
@@ -606,4 +606,4 @@ def bisect(x_:Interval,i:int=None):
 #####################################################################################
 # Interval to bool methods, Unary.
 def is_Interval(x:Any) -> bool: return x.__class__.__name__ == 'Interval'
-def is_not_Interval(x:Any) -> bool: return x.__class__.__name__ != 'Interval' # Equivalent to ~is_Interval(x), use to improves code readability.
+def is_not_Interval(x:Any) -> bool: return x.__class__.__name__ != 'Interval' 
