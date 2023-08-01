@@ -11,7 +11,6 @@ from numpy import ndarray
 
 from intervals.number import Interval as I
 from intervals.methods import (intervalise,lo,hi)
-from .interval_generator import pick_endpoints_at_random_uniform
 
 class TestMethods(unittest.TestCase):
     def test_lo(self): pass
