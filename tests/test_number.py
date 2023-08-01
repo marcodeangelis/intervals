@@ -1,15 +1,78 @@
+'''
+Tests the constructor and the the arithmetic.
+'''
 import unittest
 
 import logging
 import sys
 
 import numpy
+from numpy import ndarray
 
 from intervals.number import Interval as I
 from intervals.methods import (intervalise,lo,hi)
 from .interval_generator import pick_endpoints_at_random_uniform
 
-class TestIntervalArithmetic(unittest.TestCase):
+class TestIntervalGenerator(unittest.TestCase):
+    def test_interval_generator_(self):
+        x = pick_endpoints_at_random_uniform(n=1)
+        self.assertIsInstance(x.lo,numpy.ndarray)
+        self.assertIsInstance(x.hi,numpy.ndarray)
+    def test_interval_generator_1(self):
+        x = pick_endpoints_at_random_uniform(n=1)
+        self.assertGreaterEqual(float(x.hi),float(x.lo))
+    def test_interval_generator_1(self):
+        x = pick_endpoints_at_random_uniform(n=100)
+        t = all(x.lo<x.hi)
+        self.assertEqual(t,True)
+
+class TestConstructor(unittest.TestCase):
+    def test_passing_lo_only(self): 
+        x = pick_endpoints_at_random_uniform(n=1)
+        x_ = I(x.lo)
+        self.assertIsInstance(x_,I)
+        self.assertEqual(x_.lo,x_.hi)
+
+    def test_passing_lo_hi(self): 
+        x = pick_endpoints_at_random_uniform(n=1)
+        x_= I(lo=x.lo, hi=x.hi)
+        self.assertIsInstance(x_,I)
+        self.assertEqual(x.lo,x_.lo)
+        self.assertEqual(x.hi,x_.hi)
+        self.assertIsInstance(x.lo,ndarray)
+        self.assertIsInstance(x.hi,ndarray)
+        x_= I(x.lo, x.hi)
+        self.assertIsInstance(x_,I)
+        self.assertEqual(x.lo,x_.lo)
+        self.assertEqual(x.hi,x_.hi)
+        self.assertIsInstance(x.lo,ndarray)
+        self.assertIsInstance(x.hi,ndarray)
+
+    def test_passing_vectors(self): 
+        x = pick_endpoints_at_random_uniform(n=30)
+        x_= I(lo=x.lo, hi=x.hi)
+        self.assertIsInstance(x_,I)
+        t=all(x.lo==x_.lo)
+        self.assertEqual(t,True)
+        t=all(x.hi==x_.hi)
+        self.assertEqual(t,True)
+        self.assertIsInstance(x.lo,ndarray)
+        self.assertIsInstance(x.hi,ndarray)
+        x_= I(x.lo, x.hi)
+        self.assertIsInstance(x_,I)
+        t=all(x.lo==x_.lo)
+        self.assertEqual(t,True)
+        t=all(x.hi==x_.hi)
+        self.assertEqual(t,True)
+        self.assertIsInstance(x.lo,ndarray)
+        self.assertIsInstance(x.hi,ndarray)
+
+    def test_number_shape_1(self): 
+        x = pick_endpoints_at_random_uniform(n=30)
+        x_= I(lo=x.lo, hi=x.hi)
+        self.assertEqual(x_.shape,(30,))
+
+class TestArithmetic(unittest.TestCase):
     def test_addition_by_endpoints_analysis(self):
         """
         Test addition 100 times between random intervals.
