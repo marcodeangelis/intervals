@@ -14,7 +14,7 @@ def pick_endpoints_at_random_uniform(n:int=2, left_bound:float=None, right_bound
             if kind == float: improper = left_bound + numpy.random.rand(2,) * (right_bound-left_bound)
             elif kind == int: improper = numpy.random.randint(left_bound,high=right_bound,size=(2,))
             else: return NotImplemented
-            if improper[0] <= improper[1]: return improper[0], improper[1]
+            if improper[0] <= improper[1]: return Interval(lo=improper[0], hi=improper[1])
             else: return Interval(lo=improper[1], hi=improper[0])
         else:
             if kind == float: improper = left_bound + numpy.random.rand(n,2) * (right_bound-left_bound)
