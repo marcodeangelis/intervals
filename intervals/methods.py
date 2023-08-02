@@ -37,6 +37,7 @@ from intervals.number import (Interval, MACHINE_EPS)
 numpy_min = numpy.min
 numpy_max = numpy.max
 numpy_sqrt= numpy.sqrt
+numpy_abs = numpy.abs
 numpy_exp = numpy.exp
 numpy_sum = numpy.sum
 numpy_sin = numpy.sin
@@ -102,10 +103,8 @@ def mid(x: Interval) -> Union[float, ndarray]:
     if is_Interval(x): return (hi(x)+lo(x))/2
     return x
 
-def mig(x):
-    pass
-def mag(x):
-    pass
+def mig(x): return numpy_max(numpy_abs(x.lo),numpy_abs(x.hi)) # mignitude
+def mag(x): return numpy_min(numpy_abs(x.lo),numpy_abs(x.hi)) # magnitude
 
 #####################################################################################
 # unary.py
