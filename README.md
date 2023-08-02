@@ -6,21 +6,19 @@
 ![Build Status (https://github.com/marcodeangelis/intervals/actions/workflows/codecov.yml/badge.svg)](https://github.com/marcodeangelis/intervals/actions/workflows/codecov.yml/badge.svg)
 ![zenodo (https://zenodo.org/badge/DOI/10.5281/zenodo.6205624.svg)](https://zenodo.org/badge/DOI/10.5281/zenodo.6205624.svg)
 
-*intervals* is a library for interval computing in Python.
+*intervals* is a library for interval computing in Python. 
 
-The library implements optimized interval arithemtic between array-like structures. Optimization is achieved running Numpy under the hood. An `Interval` object is--in essence--a wrapper of an `ndarray`. So just like an `ndarray` an `Interval` is iterable, indexable, and computations are element-wise unless otherwise specified.
+The library implements optimized interval arithmetic between array-like structures. Optimization is achieved running Numpy under the hood. An `Interval` object is--in essence--a wrapper of an `ndarray`. So just like an `ndarray` an `Interval` is iterable, indexable, and computations are element-wise unless otherwise specified. Interval computations are emulated in the sense that all operations are done in floating point arithmetic. For this reason this library cannot be used for rigorous computations. A proposal is currently under consideration for it to replace the floating-point apparatus with fixed-point or rational arithmetic. 
 
 This is an __open source project__: we welcome contributions to enlarge and improve this code. If you see any error or problem, please open a new issue. If you want to join our team of developers, get in touch!
 
-Disclaimer: This implmentation of interval arithmetic is rigorous in the sense of *inclusive* but not in the sense of *verified*. 
+Disclaimer: Interval arithmetic is only emulated in the sense that computations are *inclusive* w.r.t. the specified intervals but not *verified*. 
 
-## When to use this code
-* When interval arithmetic is needed between array-like structures. 
-* For intrusive uncertainty propagation. 
-* For rigorous bounding, although additional dependency tracking is needed to compute best-possible bounds.
+## Use this code
+* To emulate interval arithmetic between array-like structures. 
 
-## When **not** to use this code
-* __Verified computing__ is not yet implemented, so if you need verified computations and outward-directed rounding you should use other software like: [IntLab](https://www.tuhh.de/ti3/rump/intlab/) or [Julia Intervals](https://juliaintervals.github.io).
+## Do not use this code
+* for __Verified computing__. If you need verified computations and outward-directed rounding you should use other software like: [IntLab](https://www.tuhh.de/ti3/rump/intlab/) or [Julia Intervals](https://juliaintervals.github.io).
 
 
 ## Why use this code
@@ -48,34 +46,8 @@ You can reach us at `mda@liverpool.ac.uk`.
 [6] Kearfott, R.B., et al. (2010). *Standardized notation in interval analysis* https://interval.louisiana.edu/preprints/Shary_n.pdf
 
 # Installation
-First, download or clone this repository on your local machine.
 
-If you don't have Github ssh keys (you may have to enter your github password) use:
-
-`git clone  https://github.com/marcodeangelis/intervals.git`
-
-Otherwise:
-
-`git clone git@github.com:marcodeangelis/intervals.git`
-
-
-
-> If you don't have a Github account, just click on the code green button, and hit Download. This will zip and download the code in your designated downloads folder.
-
-
-Then, open a code editor in the cloned or downloaded folder. 
-
-## Dependencies
-
-There is only one mandatory dependency to use `intervals`. So the `requirements.txt` is the one liner:
-
-```
-numpy>=1.22
-```
-
-However, we recommend installing also `matplotlib` for plotting. 
-
-### Virtual environment
+## Virtual environment
 
 Set up your Python3 virtual environment to safely install the dependencies.
 
@@ -93,6 +65,41 @@ $ source myenv/bin/activate
 (myenv) $ pip install -r requirements.txt
 ```
 
+## Install using pip
+
+Upon activation of your virtual environment, return the following line in your CLI or terminal:
+
+`pip install git+https://github.com/marcodeangelis/intervals.git`
+
+## Install using `git clone`
+
+First, download or clone this repository on your local drive.
+
+If you don't have Github ssh keys (you may have to enter your github password) use:
+
+`git clone  https://github.com/marcodeangelis/intervals.git`
+
+Otherwise:
+
+`git clone git@github.com:marcodeangelis/intervals.git`
+
+
+> If you don't have a Github account, just click on the code green button, and hit Download. This will download the code in your designated downloads folder.
+
+Then, open a code editor in the cloned or downloaded folder, or copy the folder `intervals` in your project directory.
+
+## Dependencies
+
+There is only one mandatory dependency to use `intervals`. 
+
+```
+numpy>=1.22
+```
+
+However, we recommend installing `matplotlib` if plotting is needed. 
+
+
+
 # Intervals
 
 Let's see this code in action.
@@ -102,7 +109,7 @@ Let's see this code in action.
 ```python
 from intervals.number import Interval as I
 from intervals.methods import (lo,hi,mid,rad,width,intervalise)
-from tests.interval_generator import pick_endpoints_at_random_uniform
+from intervals.random import uniform_endpoints
 ```
 
 
