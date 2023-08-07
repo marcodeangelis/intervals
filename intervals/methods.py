@@ -457,15 +457,32 @@ def tan_vector(x:Interval): # Vectorised version of tan().
 #####################################################################################
 # set.py
 #####################################################################################
+# Interval to bool methods, Binary.
+# ...
 def straddle_zero(x: Interval) -> bool:
     if x.unsized: return (lo(x)<=0) & (hi(x)>=0)
     else: return any((lo(x).flatten()<=0) & (hi(x).flatten()>=0))
-
-# Interval to bool methods, Binary.
-# ...
 def intersect(x:Interval, y:Interval): return ~((x<y) | (y<x)) # commutative 
 def contain(x:Interval, y:Interval):  return (lo(x)<=lo(y)) & (hi(x)>=hi(y)) # x contain y
+def intersect_vector(x_:Interval,y_:Interval):
+    '''
+    This function checks if the focal elements x, intersect the subpaving y.
 
+    x: A n-list of d-boxes or d-intervals, e.g. a subpaving. x.shape=(r,d)
+    y: A m-list of d-boxes or d-intervals, e.g. a focal element. y.shape=(p,d)
+
+    out: A (rp)-list of d-arrays of booleans
+    '''
+    x = intervalise(x_)
+    y = intervalise(y_)
+    # n,d = x.shape
+    m,d = y.shape
+    x_lo = lo(x)# x_lo = numpy.array([xi.lo for xi in x])
+    x_hi = hi(x)# x_hi = numpy.array([xi.hi for xi in x])
+    where_intersect = numpy.zeros((m,),dtype=bool)# inter = []
+    for i, yi in enumerate(tolist(y)): # a focal elem
+        where_intersect[i] = any(numpy.all(~((x_hi < lo(yi)) | (hi(yi) < x_lo)), axis=1))
+    return where_intersect
 #####################################################################################
 # parser.py
 #####################################################################################
@@ -499,7 +516,20 @@ def intervalise(x_: Any, index = -1) -> Union[Interval,Any]:
     TODO: Parse a list of mixed numbers: interval and ndarrays.
 
     """
+    def treat_list(xx): 
+        xi_lo,xi_hi = [],[]
+        for xi in xx: # if each element in the list is an interval of homogeneus shape
+            if xi.__class__.__name__=='Interval':
+                xi_lo.append(xi.lo)
+                xi_hi.append(xi.hi)
+            if xi.__class__.__name__=='ndarray':
+                xi_ = intervalise(xi) # recursion
+                xi_lo.append(xi.lo)
+                xi_hi.append(xi.hi)
+        try: return Interval(lo=xi_lo, hi=xi_hi)
+        except: return x_
     if x_.__class__.__name__=='Interval': return x_
+    if x_.__class__.__name__=='list': return treat_list(xx) # attempt to turn a n-list of intervals into a (n,...)-interval        
     x = asarray(x_, dtype=float)
     s = x.shape
     two=[si==2 for si in s]
@@ -534,6 +564,14 @@ def unsizeit(x:Interval) -> Interval:
             return Interval(lo=x.lo[0], hi=x.hi[0])
     return x
 
+def tolist(x:Interval):
+    if is_not_Interval(x): return x
+    dim = len(x.shape)
+    if dim == 1: return [Interval(xi.lo,xi.hi) for xi in x]
+    if dim == 2: 
+        m,d = x.shape
+        return [Interval(lo=x.lo[i,:],hi=x.hi[i,:]) for i in range(m)]
+    if dim > 2: return x # not implemented yet 
 #####################################################################################
 # subint.py
 #####################################################################################
