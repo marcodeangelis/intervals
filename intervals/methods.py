@@ -147,7 +147,7 @@ def sqrt(x:Interval):
     return x_lo_sqrt
 
 def exp(x:Interval):
-    if ~is_Interval(x): return numpy.exp(x)
+    if ~is_not_Interval(x): return numpy.exp(x)
     return Interval(numpy_exp(lo(x)),numpy_exp(hi(x)))
     
 #####################################################################################
@@ -223,7 +223,7 @@ def sin(x:Interval):
     case5 = contain(domain2,yl) & contain(domain2,yh) & (yl<=yh) 
 
     if case1a | case1b | case1c | case1d : return Interval(-1,1)
-    if case2a | case2b | case2c : return Interval(sin_h,sin_l)
+    if case2a | case2b | case2c : return Interval(sin_l,sin_h)
     if case3a | case3b : return Interval(min(sin_l,sin_h),1)
     if case4a | case4b : return Interval(-1,max(sin_l,sin_h))
     if case5: return Interval(sin_h,sin_l)
@@ -250,7 +250,7 @@ def sin_vector(x:Interval): # vectorised version of sin().
     sin_l = numpy_sin(yl)
     sin_h = numpy_sin(yh)
 
-    # [l,h]
+    # [l,h] all else
     a = sin_l.copy()
     b = sin_h.copy()
 
@@ -265,10 +265,7 @@ def sin_vector(x:Interval): # vectorised version of sin().
     if all(case1): return Interval(lo=a,hi=b)
     # [h,l]
     mask2b = contain(domain2,yl[~case1]) & contain(domain2,yh[~case1]) & (yl[~case1]<=yh[~case1])  #return Interval(sin_h,sin_l)
-    mask4a = contain(domain1,yl[~case1]) & contain(domain1,yh[~case1]) & (yl[~case1]<=yh[~case1]) 
-    mask4b = contain(domain3,yl[~case1]) & contain(domain1,yh[~case1]) 
-    mask4c = contain(domain3,yl[~case1]) & contain(domain3,yh[~case1]) & (yl[~case1]<=yh[~case1]) 
-    case2 = mask2b|mask4a|mask4b|mask4c
+    case2 = mask2b 
     a[case2] = sin_h[case2]
     b[case2] = sin_l[case2]
     # [min, 1]
