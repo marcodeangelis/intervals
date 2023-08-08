@@ -9,7 +9,7 @@ MIT License
 ------------------------------
 
 These methods are designed to behave neutrally on non-interval inputs. 
-So, if a non-interval is passed standard rules for floats apply.
+So, if a non-interval is passed equivalent rules for floats apply.
 
 Interval to float methods, IR -> R:
 
@@ -522,15 +522,18 @@ def intervalise(x_: Any, index = -1) -> Union[Interval,Any]:
             if xi.__class__.__name__=='Interval':
                 xi_lo.append(xi.lo)
                 xi_hi.append(xi.hi)
-            if xi.__class__.__name__=='ndarray':
+            else: 
                 xi_ = intervalise(xi) # recursion
-                xi_lo.append(xi.lo)
-                xi_hi.append(xi.hi)
+                xi_lo.append(xi_.lo)
+                xi_hi.append(xi_.hi)
         try: return Interval(lo=xi_lo, hi=xi_hi)
-        except: return x_
+        except:
+            print('!! Parsing an interval from list failed.') 
+            return x_
     if x_.__class__.__name__=='Interval': return x_
-    if x_.__class__.__name__=='list': return treat_list(xx) # attempt to turn a n-list of intervals into a (n,...)-interval        
-    x = asarray(x_, dtype=float)
+    try: x = asarray(x_, dtype=float)
+    except ValueError: # ValueError: setting an array element with a sequence. The requested array has an inhomogeneous shape after 1 dimensions. The detected shape was (...) + inhomogeneous part.
+        if x_.__class__.__name__=='list': return treat_list(x_) # attempt to turn a n-list of intervals into a (n,...)-interval 
     s = x.shape
     two=[si==2 for si in s]
     if all(two): return Interval(lo=transpose(x)[0],hi=transpose(x)[1])
