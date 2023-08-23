@@ -147,7 +147,7 @@ def sqrt(x:Interval):
     return x_lo_sqrt
 
 def exp(x:Interval):
-    if ~is_not_Interval(x): return numpy.exp(x)
+    if is_not_Interval(x): return numpy_exp(x)
     return Interval(numpy_exp(lo(x)),numpy_exp(hi(x)))
     
 #####################################################################################
@@ -461,6 +461,7 @@ def straddle_zero(x: Interval) -> bool:
     else: return any((lo(x).flatten()<=0) & (hi(x).flatten()>=0))
 def intersect(x:Interval, y:Interval): return ~((x<y) | (y<x)) # commutative 
 def contain(x:Interval, y:Interval):  return (lo(x)<=lo(y)) & (hi(x)>=hi(y)) # x contain y
+def almost_contain(x:Interval, y:Interval, tol=1e-9):  return (lo(y)-lo(x)>-tol) & (hi(x)-hi(y)>-tol) # x contain y
 def intersect_vector(x_:Interval,y_:Interval):
     '''
     This function checks if the focal elements x, intersect the subpaving y.
