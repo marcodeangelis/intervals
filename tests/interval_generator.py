@@ -14,7 +14,8 @@ def pick_endpoints_at_random_uniform(n:int=2, left_bound:float=None, right_bound
             if kind == float: improper = left_bound + numpy.random.rand(2,) * (right_bound-left_bound)
             elif kind == int: improper = numpy.random.randint(left_bound,high=right_bound,size=(2,))
             else: return NotImplemented
-            return improper[0], improper[1]
+            if improper[0] <= improper[1]: return Interval(lo=improper[0], hi=improper[1])
+            else: return Interval(lo=improper[1], hi=improper[0])
         else:
             if kind == float: improper = left_bound + numpy.random.rand(n,2) * (right_bound-left_bound)
             elif kind == int: improper = numpy.random.randint(left_bound,high=right_bound,size=(n,2))
@@ -31,10 +32,10 @@ def pick_endpoints_at_random_uniform(n:int=2, left_bound:float=None, right_bound
     swap = improper_lo >= improper_hi
     proper_lo, proper_hi = improper_lo.copy(), improper_hi.copy()
     if numpy.sum(swap)>0: proper_lo[swap],proper_hi[swap]=proper_hi[swap],proper_lo[swap]
-    return (proper_lo, proper_hi)
+    return Interval(lo=proper_lo, hi=proper_hi)
 
 def create_two_large_interval_matrices(shape,left_bound=0,right_bound=1):
     # shape=(100000,100000)
-    x = intervalise(pick_endpoints_at_random_uniform(shape=shape,left_bound=left_bound,right_bound=right_bound))
-    y = intervalise(pick_endpoints_at_random_uniform(shape=shape,left_bound=left_bound,right_bound=right_bound))
+    x = pick_endpoints_at_random_uniform(shape=shape,left_bound=left_bound,right_bound=right_bound)
+    y = pick_endpoints_at_random_uniform(shape=shape,left_bound=left_bound,right_bound=right_bound)
     return x,y

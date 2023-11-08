@@ -1,9 +1,32 @@
 """
---------------------------
-Created Tue Feb 08 2022
-github.com/marcodeangelis
-MIT License
---------------------------
+:#######################################################
+: Intervals Library v02 for Python                                              
+: Developed by Marco de Angelis
+:#######################################################
+
+Place the folder `intervals` that contains this file in your working directory. 
+Then place the following line at the top of your code.
+
+`import intervals as ia`
+
+Once the library has been imported you can create an interval
+
+`a = ia.Interval(1,5)`
+`b = ia.Interval(-2,-1)
+
+and perform mathematical operations between them 
+
+`a + b`
+`a - b`
+`a * b`
+`a / b`
+
+
+----------------------------------------------------
+:Created Tue Feb 08 2022
+:github.com/marcodeangelis
+:MIT License
+----------------------------------------------------
 """
 from __future__ import annotations
 from typing import (Sequence, Sized, Iterable, Optional, Any, Tuple, Union)
@@ -13,7 +36,7 @@ from typing import (Sequence, Sized, Iterable, Optional, Any, Tuple, Union)
 # from intervals.methods import (lo,hi,width,rad,mag,straddlezero,isinterval)
 
 import numpy
-from numpy import (ndarray,asarray,stack,transpose,ascontiguousarray)
+from numpy import (ndarray,asarray,stack,transpose,ascontiguousarray,zeros)
 # float32=numpy.float32
 
 from intervals.arithmetic import (multiply,divide)
@@ -26,7 +49,7 @@ NUMERIC_TYPES =     {'int','float','complex',                   # Python numbers
                     'float16','float32','float64','float_',     # Numpy floats and doubles
                     'complex64','complex128','complex_'}        # Numpy complex floats and doubles
 
-# INTEGERS =          {'int','int8','int16','int32','int64','intp','uint8','uint16','uint32','uint64','uintp'}
+INTEGERS =          {'int','int8','int16','int32','int64','intp','uint8','uint16','uint32','uint64','uintp'}
 # FLOATS =            {'float','float16','float32','float64','float_'}
 
 
@@ -58,7 +81,7 @@ class Interval():
                  hi: Optional[Union[float,ndarray]] = None) -> None:
         self.__lo = asarray(lo, dtype=float)
         if hi is None: hi = self.__lo.copy()
-        self.__unsized = True
+        # self.__unsized = True
         self.__hi = asarray(hi, dtype=float) # check lo and hi have same shape
         # if (len(self.__hi.shape)>0) | (len(self.__hi.shape)>0): self.__unsized = False
         self.__shape = self.__lo.shape
@@ -78,11 +101,13 @@ class Interval():
         return Interval(lo=self.__lo[i],hi=self.__hi[i])
     # -------------- METHODS -------------- #
     @property
-    def lo(self) -> ndarray:
-        return self.__lo # return transpose(transpose(self.__val)[0]) # from shape (3,7,2) to (2,7,3) to (3,7)
+    def lo(self) -> Union[ndarray,float]: return self.__lo
+        # if len(self.shape)==0: return self.__lo
+        # return self.__lo # return transpose(transpose(self.__val)[0]) # from shape (3,7,2) to (2,7,3) to (3,7)
     @property
-    def hi(self) -> ndarray:
-        return self.__hi # return transpose(transpose(self.__val)[1])
+    def hi(self) -> Union[ndarray,float]: return self.__hi
+        # if len(self.shape)==0: return self.__hi
+        # return self.__hi # return transpose(transpose(self.__val)[1])
     @property
     def unsized(self):
         if (len(self.__hi.shape)>0) | (len(self.__hi.shape)>0): return False
@@ -98,6 +123,10 @@ class Interval():
     def shape(self):
         return self.__shape
     # -------------- ARITHMETIC -------------- #
+    # unary operators #
+    def __neg__(self): return Interval(-self.hi, -self.lo)
+    def __pos__(self): return self
+    # binary operators #
     def __add__(self,other):
         otherType = other.__class__.__name__
         if (otherType == 'ndarray') | (otherType in NUMERIC_TYPES): lo, hi = self.lo + other, self.hi + other
@@ -172,6 +201,32 @@ class Interval():
             else: lo, hi = left / self_lo, left / self_hi
         else: return NotImplemented
         return Interval(lo,hi)
+    def __pow__(self,other):
+        otherType = other.__class__.__name__
+        if otherType in INTEGERS:
+            a,b = numpy.asarray(self.lo**other), numpy.asarray(self.hi**other) # a2,b2 = a**2, b**2
+            if other%2==0: # even power
+                lo=zeros(a.shape) # numpy.max([numpy.min([a,b],axis=0),numpy.zeros(a.shape)],axis=0)
+                lo[self<0]=b[self<0]
+                lo[self>0]=a[self>0]
+                hi=numpy.max([a,b],axis=0)
+            else: # odd power
+                lo=numpy.min([a,b],axis=0)
+                hi=numpy.max([a,b],axis=0)
+        else: raise NotImplemented
+        return Interval(lo,hi)
+
+
+    def __lt__(self, other): return hi(self) < lo(other)
+    def __rlt__(self,left):  return hi(left) < lo(self)
+    def __gt__(self, other): return lo(self) > hi(other)
+    def __rgt__(self, left): return lo(left) > hi(self)
+    def __le__(self, other): return hi(self) <= lo(other)
+    def __rle__(self,left):  return hi(left) <= lo(self)
+    def __ge__(self, other): return lo(self) >= hi(other)
+    def __rge__(self, left): return lo(left) >= hi(self)
+    def __eq__(self, other): return (lo(self)==lo(other)) & (hi(self)==hi(other))
+    def __ne__(self,other):  return not(self == other)
 
 # def iterator(x:Interval) -> Interval:
 #     lo_iter,hi_iter = numpy.nditer(x.lo()),numpy.nditer(x.hi())
@@ -181,3 +236,24 @@ class Interval():
 def is_Interval(x:Any) -> bool:
     x_class_name = x.__class__.__name__
     return x_class_name == 'Interval'
+
+
+def lo(x: Interval) -> Union[float, ndarray]:
+    """
+    Return the left endpoint of an Interval object.
+
+    If x is not of class Interval, input is returned.
+
+    """
+    if is_Interval(x): return x.lo
+    return x
+
+def hi(x: Interval) -> Union[float, ndarray]:
+    """
+    Return the right endpoint of an Interval object.
+
+    If x is not of class Interval, input is returned.
+    
+    """
+    if is_Interval(x): return x.hi
+    return x

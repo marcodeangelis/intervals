@@ -1,23 +1,87 @@
+'''
+Tests the constructor and the the arithmetic.
+'''
 import unittest
 
 import logging
 import sys
 
 import numpy
+from numpy import ndarray
 
 from intervals.number import Interval as I
 from intervals.methods import (intervalise,lo,hi)
-from .interval_generator import pick_endpoints_at_random_uniform
+from intervals.random import uniform_endpoints
 
-class TestIntervalArithmetic(unittest.TestCase):
+
+class TestIntervalGenerator(unittest.TestCase):
+    def test_interval_generator_(self):
+        x = uniform_endpoints(n=1)
+        self.assertIsInstance(x.lo,numpy.ndarray)
+        self.assertIsInstance(x.hi,numpy.ndarray)
+    def test_interval_generator_1(self):
+        x = uniform_endpoints(n=1)
+        self.assertGreaterEqual(float(x.hi),float(x.lo))
+    def test_interval_generator_1(self):
+        x = uniform_endpoints(n=100)
+        t = all(x.lo<x.hi)
+        self.assertEqual(t,True)
+
+class TestConstructor(unittest.TestCase):
+    def test_passing_lo_only(self): 
+        x = uniform_endpoints(n=1)
+        x_ = I(x.lo)
+        self.assertIsInstance(x_,I)
+        self.assertEqual(x_.lo,x_.hi)
+
+    def test_passing_lo_hi(self): 
+        x = uniform_endpoints(n=1)
+        x_= I(lo=x.lo, hi=x.hi)
+        self.assertIsInstance(x_,I)
+        self.assertEqual(x.lo,x_.lo)
+        self.assertEqual(x.hi,x_.hi)
+        self.assertIsInstance(x.lo,ndarray)
+        self.assertIsInstance(x.hi,ndarray)
+        x_= I(x.lo, x.hi)
+        self.assertIsInstance(x_,I)
+        self.assertEqual(x.lo,x_.lo)
+        self.assertEqual(x.hi,x_.hi)
+        self.assertIsInstance(x.lo,ndarray)
+        self.assertIsInstance(x.hi,ndarray)
+
+    def test_passing_vectors(self): 
+        x = uniform_endpoints(n=30)
+        x_= I(lo=x.lo, hi=x.hi)
+        self.assertIsInstance(x_,I)
+        t=all(x.lo==x_.lo)
+        self.assertEqual(t,True)
+        t=all(x.hi==x_.hi)
+        self.assertEqual(t,True)
+        self.assertIsInstance(x.lo,ndarray)
+        self.assertIsInstance(x.hi,ndarray)
+        x_= I(x.lo, x.hi)
+        self.assertIsInstance(x_,I)
+        t=all(x.lo==x_.lo)
+        self.assertEqual(t,True)
+        t=all(x.hi==x_.hi)
+        self.assertEqual(t,True)
+        self.assertIsInstance(x.lo,ndarray)
+        self.assertIsInstance(x.hi,ndarray)
+
+    def test_number_shape_1(self): 
+        x = uniform_endpoints(n=30)
+        x_= I(lo=x.lo, hi=x.hi)
+        self.assertEqual(x_.shape,(30,))
+
+class TestArithmetic(unittest.TestCase):
     def test_addition_by_endpoints_analysis(self):
         """
         Test addition 100 times between random intervals.
         """
         # log = logging.getLogger("TestLog")
         # log.debug("testing addition hundred times between random intervals")
-        x = intervalise(pick_endpoints_at_random_uniform(n=100))
-        y = intervalise(pick_endpoints_at_random_uniform(n=100))
+        x = uniform_endpoints(n=100)
+        y = uniform_endpoints(n=100)
         for xi,yi in zip(x,y):
             xi_op_yi = xi+yi
             a,b = [lo(xi),hi(xi)], [lo(yi),hi(yi)] 
@@ -29,8 +93,8 @@ class TestIntervalArithmetic(unittest.TestCase):
         """
         Test subtraction 100 times between random intervals.
         """
-        x = intervalise(pick_endpoints_at_random_uniform(n=100))
-        y = intervalise(pick_endpoints_at_random_uniform(n=100))
+        x = uniform_endpoints(n=100)
+        y = uniform_endpoints(n=100)
         for xi,yi in zip(x,y):
             xi_op_yi = xi-yi
             a,b = [lo(xi),hi(xi)], [lo(yi),hi(yi)] 
@@ -42,8 +106,8 @@ class TestIntervalArithmetic(unittest.TestCase):
         """
         Test multiplication 100 times between random intervals.
         """
-        x = intervalise(pick_endpoints_at_random_uniform(n=100))
-        y = intervalise(pick_endpoints_at_random_uniform(n=100))
+        x = uniform_endpoints(n=100)
+        y = uniform_endpoints(n=100)
         for xi,yi in zip(x,y):
             xi_op_yi = xi*yi
             a,b = [lo(xi),hi(xi)], [lo(yi),hi(yi)] 
@@ -55,8 +119,8 @@ class TestIntervalArithmetic(unittest.TestCase):
         """
         Test division 100 times between random intervals.
         """
-        x = intervalise(pick_endpoints_at_random_uniform(n=100))
-        y = intervalise(pick_endpoints_at_random_uniform(n=100,left_bound=0.001))
+        x = uniform_endpoints(n=100)
+        y = uniform_endpoints(n=100,left_bound=0.001)
         for xi,yi in zip(x,y):
             xi_plus_yi = xi/yi
             a,b = [lo(xi),hi(xi)], [lo(yi),hi(yi)] 
@@ -68,8 +132,8 @@ class TestIntervalArithmetic(unittest.TestCase):
         """
         Test element-wise operations between two dimensional arrays of intervals.
         """
-        x = intervalise(pick_endpoints_at_random_uniform(shape=(100,4)))
-        y = intervalise(pick_endpoints_at_random_uniform(shape=(100,4),left_bound=0.001))
+        x = uniform_endpoints(shape=(100,4))
+        y = uniform_endpoints(shape=(100,4),left_bound=0.001)
         x_add_y = x+y
         x_sub_y = x-y
         x_mul_y = x*y
@@ -91,8 +155,8 @@ class TestIntervalArithmetic(unittest.TestCase):
         """
         Test element-wise operations between three dimensional arrays of intervals.
         """
-        x = intervalise(pick_endpoints_at_random_uniform(shape=(10,3,3)))
-        y = intervalise(pick_endpoints_at_random_uniform(shape=(10,3,3),left_bound=0.001))
+        x = uniform_endpoints(shape=(10,3,3))
+        y = uniform_endpoints(shape=(10,3,3),left_bound=0.001)
         x_add_y = x+y
         x_sub_y = x-y
         x_mul_y = x*y
@@ -114,8 +178,8 @@ class TestIntervalArithmetic(unittest.TestCase):
         """
         Test element-wise operations between array-like and scalar intervals.
         """
-        a = intervalise(pick_endpoints_at_random_uniform(n=1,left_bound=-1,right_bound=1))
-        y = intervalise(pick_endpoints_at_random_uniform(shape=(10,3,3),left_bound=0.001))
+        a = uniform_endpoints(n=1,left_bound=-1,right_bound=1)
+        y = uniform_endpoints(shape=(10,3,3),left_bound=0.001)
         a_add_y = a+y
         a_sub_y = a-y
         a_mul_y = a*y
@@ -137,8 +201,8 @@ class TestIntervalArithmetic(unittest.TestCase):
         """
         Test element-wise operations between array-like and scalar intervals.
         """
-        a = intervalise(pick_endpoints_at_random_uniform(n=1,left_bound=0.001,right_bound=1))
-        y = intervalise(pick_endpoints_at_random_uniform(shape=(10,3,3),left_bound=0.001))
+        a = uniform_endpoints(n=1,left_bound=0.001,right_bound=1)
+        y = uniform_endpoints(shape=(10,3,3),left_bound=0.001)
         y_add_a = y+a
         y_sub_a = y-a
         y_mul_a = y*a
@@ -161,7 +225,7 @@ class TestIntervalArithmetic(unittest.TestCase):
         Test element-wise operations between array-like and non-interval numbers.
         """
         a = -10 + numpy.random.rand() * 20 # a random number between -10 and 10
-        y = intervalise(pick_endpoints_at_random_uniform(n=100,left_bound=0.001))
+        y = uniform_endpoints(n=100,left_bound=0.001)
         for yi in y:
             yi_add_a = yi+a
             yi_sub_a = yi-a
@@ -189,7 +253,7 @@ class TestIntervalArithmetic(unittest.TestCase):
         Test element-wise operations between array-like and non-interval numbers.
         """
         a = -10 + numpy.random.rand() * 20
-        y = intervalise(pick_endpoints_at_random_uniform(shape=(7,4,3),left_bound=0.001))
+        y = uniform_endpoints(shape=(7,4,3),left_bound=0.001)
         y_add_a = y+a
         y_sub_a = y-a
         y_mul_a = y*a
