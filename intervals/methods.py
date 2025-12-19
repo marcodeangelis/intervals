@@ -45,7 +45,7 @@ numpy_cos = numpy.cos
 numpy_tan = numpy.tan
 # numpy_cot = numpy.cotang
 numpy_pi  = numpy.pi
-numpy_inf = numpy.Inf
+numpy_inf = numpy.inf
 
 # Properties or maybe attributes of the interval class. These apply to all interval-like objects.
 
